@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Github Page + Hexo 个人主页搭建</title>
+    <url>/2020/03/14/hexo-blog/</url>
+    <content><![CDATA[<p>Hexo + Github 应该是目前搭建个人主页使用最广的方式，本文主要记录利用 Hexo + Github 搭建静态主页以及一些配置相关的问题。</p><h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><ul>
+<li>下载并安装 <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">node.js</a><br>  安装 node.js 会默认安装 npm，安装完成后，在命令行中输入命令验证 Hexo 的环境是否搭建完成。  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">node -v  # node.js 的版本号</span><br><span class="line">npm -v   # npm 的版本号</span><br></pre></td></tr></table></figure></li>
+<li>下载并安装 <a href="https://git-scm.com/download" target="_blank" rel="noopener">git</a></li>
+</ul><a id="more"></a>
+
+<h2 id="2-创建本地静态主页"><a href="#2-创建本地静态主页" class="headerlink" title="2. 创建本地静态主页"></a>2. 创建本地静态主页</h2><ul>
+<li>新建一个文件夹用于存放主页文件</li>
+<li>进入该文件夹内，使用 npm 命令安装 Hexo  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli  # 下载静态网站的相关文件</span><br></pre></td></tr></table></figure></li>
+<li>右键运行 git</li>
+<li>在命令行中输入命令  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">hexo init      # 初始化静态主页的架构</span><br><span class="line">hexo serve     # 启动本地服务</span><br></pre></td></tr></table></figure></li>
+<li>打开浏览器，访问 <a href="https://localhost:4000" target="_blank" rel="noopener">https://localhost:4000</a></li>
+</ul>
+<h2 id="3-将项目与Github关联"><a href="#3-将项目与Github关联" class="headerlink" title="3. 将项目与Github关联"></a>3. 将项目与Github关联</h2><ul>
+<li>在 Github 上创建 <code>yourname</code>.github.io 项目</li>
+<li>打开本地文件夹内的 <code>_config.yml</code> 配置文件，并设置其中的 <code>deploy</code> 属性：  <figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">  repository:</span> <span class="attr">https://github.com/yourname/yourname.github.io.git</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure></li>
+<li>在命令行运行  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo generate</span><br><span class="line">hexo deploy  # 将本地静态文件发布到 Github</span><br></pre></td></tr></table></figure></li>
+<li>打开浏览器，访问 <code>https://yourname.github.io</code></li>
+</ul>
+<h2 id="参考文章-amp-资源链接"><a href="#参考文章-amp-资源链接" class="headerlink" title="参考文章 &amp; 资源链接"></a>参考文章 &amp; 资源链接</h2><ul>
+<li><a href="https://hexo.io/zh-cn/" target="_blank" rel="noopener">Hexo 官方网站</a></li>
+<li><a href="https://theme-next.iissnan.com/" target="_blank" rel="noopener">NexT 主题</a></li>
+<li><a href="https://aoenian.github.io/2019/04/14/next-theme-gitment/" target="_blank" rel="noopener">Next 主题增加Gitment评论系统</a></li>
+<li><a href="https://silencezhou.github.io/2018/08/07/Next%E4%B8%BB%E9%A2%98%E5%8D%9A%E5%AE%A2%E5%8A%9F%E8%83%BD%E5%AE%8C%E5%96%84/" target="_blank" rel="noopener">Hexo Next 主题博客功能完善</a></li>
+<li><a href="http://xianbai.me/learn-md/index.html" target="_blank" rel="noopener">Markdown 入门参考</a></li>
+<li><a href="https://yanyinhong.github.io/2017/05/02/How-to-insert-image-in-hexo-post/" target="_blank" rel="noopener">Hexo 博客搭建之在文章中插入图片</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+</search>
