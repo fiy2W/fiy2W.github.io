@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>深度学习模型性能评价指标</title>
+    <url>/2020/03/27/CNN-performance-evaluation/</url>
+    <content><![CDATA[<p>本文主要介绍了用于评价深度学习模型计算性能的指标，并给出了相应的 TensorFlow 的代码实现。</p><h2 id="1-Parameter-Memory-amp-Feature-Memory"><a href="#1-Parameter-Memory-amp-Feature-Memory" class="headerlink" title="1. Parameter Memory &amp; Feature Memory"></a>1. Parameter Memory &amp; Feature Memory</h2><p><code>Parameter Memory</code> 表示了网络的权重参数大小，CNN 模型的参数量主要在<code>卷积</code>、<code>反卷积</code>和<code>全连接</code>。<code>Feature Memory</code> 则表示了网络中前向计算产生的特征图大小。</p><a id="more"></a>
+
+<h3 id="计算方法"><a href="#计算方法" class="headerlink" title="计算方法"></a>计算方法</h3><h4 id="全连接"><a href="#全连接" class="headerlink" title="全连接"></a>全连接</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="string">""" 全连接层</span></span><br><span class="line"><span class="string">inputs:  (N, cin)</span></span><br><span class="line"><span class="string">outputs: (N, cout)</span></span><br><span class="line"><span class="string">W:       (cin, cout)</span></span><br><span class="line"><span class="string">bias:    (1, cout)</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">outputs = tf.matmul(inputs, W) + bias</span><br></pre></td></tr></table></figure>
+<p>对于上述代码中的全连接，参数量为 $c_{in}<em>c_{out}+c_{out}$ ；若不含有 <code>bias</code> 项，则参数量为 $c_{in}</em>c_{out}$ 。输入和输出的特征图大小分别为 $N<em>c_{in}$ 和 $N</em>c_{out}$ 。</p>
+<p>其中，$c_{in}$ 表示输入特征图通道，$c_{out}$ 表示输出特征图通道数，$N$ 表示批处理大小。</p>
+<h4 id="卷积"><a href="#卷积" class="headerlink" title="卷积"></a>卷积</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="string">""" 卷积层</span></span><br><span class="line"><span class="string">inputs:  (N, hin, win, cin)</span></span><br><span class="line"><span class="string">outputs: (N, hout, wout, cout)</span></span><br><span class="line"><span class="string">filter:  (hkernel, wkernel, cin, cout)</span></span><br><span class="line"><span class="string">strides: S</span></span><br><span class="line"><span class="string">padding: P</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">outputs = tf.nn.conv2d(inputs, filter, strides, padding, ...)</span><br></pre></td></tr></table></figure>
+<p>对于上述代码中的卷积，参数量为 $h_{kernel}<em>w_{kernel}</em>c_{in}<em>c_{out}$ ；输入和输出的特征图大小分别为 $N</em>h_{in}<em>w_{in}</em>c_{in}$ 和 $N<em>h_{out}</em>w_{out}*c_{out}$ ，且满足关系 $h_{out}=(h_{in}-h_{kernel}+2P)/S+1$ 和 $w_{out}=(w_{in}-w_{kernel}+2P)/S+1$ 。</p>
+<p>其中，$h_{in}$ 、$h_{out}$ 、$w_{in}$ 、$w_{out}$ 分别表示输入和输出特征图的长和宽，$c_{in}$ 和 $c_{out}$ 分别表示输入和输出特征图的通道数，$h_{kernel}$ 和 $w_{kernel}$ 分别表示卷积核的长和宽，$S$ 表示步长，$P$ 表示 padding 的像素个数。</p>
+<h4 id="反卷积"><a href="#反卷积" class="headerlink" title="反卷积"></a>反卷积</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="string">""" 卷积层</span></span><br><span class="line"><span class="string">inputs:  (None, hin, win, cin)</span></span><br><span class="line"><span class="string">outputs: (None, hout, wout, cout)</span></span><br><span class="line"><span class="string">filter:  (hkernel, wkernel, cout, cin)</span></span><br><span class="line"><span class="string">strides: S</span></span><br><span class="line"><span class="string">padding: P</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">outputs = tf.nn.conv2d_transpose(inputs, filter, strides, padding, ...)</span><br></pre></td></tr></table></figure>
+<p>对于上述代码中的反卷积，参数量为 $h_{kernel}<em>w_{kernel}</em>c_{in}<em>c_{out}$ ；输入和输出的特征图大小分别为 $N</em>h_{in}<em>w_{in}</em>c_{in}$ 和 $N<em>h_{out}</em>w_{out}<em>c_{out}$ ，且满足关系 $h_{out}=(h_{in}-1)</em>S+h_{kernel}-2P$ 和 $w_{out}=(w_{in}-1)*S+w_{kernel}-2P$ 。</p>
+<p>其中，$h_{in}$ 、$h_{out}$ 、$w_{in}$ 、$w_{out}$ 分别表示输入和输出特征图的长和宽，$c_{in}$ 和 $c_{out}$ 分别表示输入和输出特征图的通道数，$h_{kernel}$ 和 $w_{kernel}$ 分别表示卷积核的长和宽，$S$ 表示步长，$P$ 表示 padding 的像素个数。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># using TensorFlow 1.x</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment">### Define the graph first ###</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get parameter memory</span></span><br><span class="line">variables = tf.trainable_variables()</span><br><span class="line">total_parameters = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> variable <span class="keyword">in</span> variables:</span><br><span class="line">    shape = variable.get_shape()    </span><br><span class="line">    variable_parameters = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> dim <span class="keyword">in</span> shape:</span><br><span class="line">        variable_parameters *= dim.value</span><br><span class="line">    total_parameters += variable_parameters</span><br><span class="line">print(total_parameters)</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-FLOPs"><a href="#2-FLOPs" class="headerlink" title="2. FLOPs"></a>2. FLOPs</h2><p>FLOPs（Floating Point Operations）表示浮点运算数，用于衡量模型的复杂度。</p>
+<h3 id="计算方法-1"><a href="#计算方法-1" class="headerlink" title="计算方法"></a>计算方法</h3><h4 id="全连接-1"><a href="#全连接-1" class="headerlink" title="全连接"></a>全连接</h4><p><code>乘法</code>：$N<em>c_{in}</em>c_{out}$</p>
+<p><code>加法</code>：$N<em>(2c_{in}-1)</em>c_{out}$</p>
+<h4 id="卷积-1"><a href="#卷积-1" class="headerlink" title="卷积"></a>卷积</h4><p><code>乘法</code>：$N<em>h_{kernel}</em>w_{kernel}<em>h_{out}</em>w_{out}<em>c_{in}</em>c_{out}$</p>
+<p><code>加法</code>：$N<em>h_{kernel}<em>w_{kernel}</em>h_{out}*w_{out}</em>(c_{in}-1)*c_{out}$</p>
+<h3 id="代码实现-1"><a href="#代码实现-1" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># using TensorFlow 1.x</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment">### Define the graph first ###</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get flops</span></span><br><span class="line">run_meta = tf.RunMetadata()    </span><br><span class="line">opts = tf.profiler.ProfileOptionBuilder.float_operation() </span><br><span class="line">flops = tf.profiler.profile(graph=tf.get_default_graph(),</span><br><span class="line">    run_meta=run_meta, cmd=<span class="string">'op'</span>, options=opts)     </span><br><span class="line">print(flops.total_float_ops)</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>TensorFlow</tag>
+        <tag>评价指标</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Github Page + Hexo 个人主页搭建</title>
     <url>/2020/03/14/hexo-blog/</url>
     <content><![CDATA[<p>Hexo + Github 应该是目前搭建个人主页使用最广的方式，本文主要记录利用 Hexo + Github 搭建静态主页以及一些配置相关的问题。</p><h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><ul>

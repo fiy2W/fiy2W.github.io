@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.2">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.2" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.2">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要介绍了用于评价深度学习模型计算性能的指标，并给出了相应的 TensorFlow 的代码实现。1. Parameter Memory &amp;amp; Feature MemoryParameter Memory 表示了网络的权重参数大小，CNN 模型的参数量主要在卷积、反卷积和全连接。Feature Memory 则表示了网络中前向计算产生的特征图大小。">
+<meta name="keywords" content="TensorFlow,评价指标">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深度学习模型性能评价指标">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;03&#x2F;27&#x2F;CNN-performance-evaluation&#x2F;index.html">
+<meta property="og:site_name" content="fiy2W&#39;s Blog">
+<meta property="og:description" content="本文主要介绍了用于评价深度学习模型计算性能的指标，并给出了相应的 TensorFlow 的代码实现。1. Parameter Memory &amp;amp; Feature MemoryParameter Memory 表示了网络的权重参数大小，CNN 模型的参数量主要在卷积、反卷积和全连接。Feature Memory 则表示了网络中前向计算产生的特征图大小。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-27T12:44:48.238Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/03/27/CNN-performance-evaluation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>深度学习模型性能评价指标 | fiy2W's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">fiy2W's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/27/CNN-performance-evaluation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="fiy2W">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fiy2W's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深度学习模型性能评价指标
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-27 16:04:33 / 修改时间：20:44:48" itemprop="dateCreated datePublished" datetime="2020-03-27T16:04:33+08:00">2020-03-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要介绍了用于评价深度学习模型计算性能的指标，并给出了相应的 TensorFlow 的代码实现。</p><h2 id="1-Parameter-Memory-amp-Feature-Memory"><a href="#1-Parameter-Memory-amp-Feature-Memory" class="headerlink" title="1. Parameter Memory &amp; Feature Memory"></a>1. Parameter Memory &amp; Feature Memory</h2><p><code>Parameter Memory</code> 表示了网络的权重参数大小，CNN 模型的参数量主要在<code>卷积</code>、<code>反卷积</code>和<code>全连接</code>。<code>Feature Memory</code> 则表示了网络中前向计算产生的特征图大小。</p><a id="more"></a>
+
+<h3 id="计算方法"><a href="#计算方法" class="headerlink" title="计算方法"></a>计算方法</h3><h4 id="全连接"><a href="#全连接" class="headerlink" title="全连接"></a>全连接</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">""" 全连接层</span></span><br><span class="line"><span class="string">inputs:  (N, cin)</span></span><br><span class="line"><span class="string">outputs: (N, cout)</span></span><br><span class="line"><span class="string">W:       (cin, cout)</span></span><br><span class="line"><span class="string">bias:    (1, cout)</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">outputs = tf.matmul(inputs, W) + bias</span><br></pre></td></tr></table></figure>
+<p>对于上述代码中的全连接，参数量为 $c_{in}<em>c_{out}+c_{out}$ ；若不含有 <code>bias</code> 项，则参数量为 $c_{in}</em>c_{out}$ 。输入和输出的特征图大小分别为 $N<em>c_{in}$ 和 $N</em>c_{out}$ 。</p>
+<p>其中，$c_{in}$ 表示输入特征图通道，$c_{out}$ 表示输出特征图通道数，$N$ 表示批处理大小。</p>
+<h4 id="卷积"><a href="#卷积" class="headerlink" title="卷积"></a>卷积</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">""" 卷积层</span></span><br><span class="line"><span class="string">inputs:  (N, hin, win, cin)</span></span><br><span class="line"><span class="string">outputs: (N, hout, wout, cout)</span></span><br><span class="line"><span class="string">filter:  (hkernel, wkernel, cin, cout)</span></span><br><span class="line"><span class="string">strides: S</span></span><br><span class="line"><span class="string">padding: P</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">outputs = tf.nn.conv2d(inputs, filter, strides, padding, ...)</span><br></pre></td></tr></table></figure>
+<p>对于上述代码中的卷积，参数量为 $h_{kernel}<em>w_{kernel}</em>c_{in}<em>c_{out}$ ；输入和输出的特征图大小分别为 $N</em>h_{in}<em>w_{in}</em>c_{in}$ 和 $N<em>h_{out}</em>w_{out}*c_{out}$ ，且满足关系 $h_{out}=(h_{in}-h_{kernel}+2P)/S+1$ 和 $w_{out}=(w_{in}-w_{kernel}+2P)/S+1$ 。</p>
+<p>其中，$h_{in}$ 、$h_{out}$ 、$w_{in}$ 、$w_{out}$ 分别表示输入和输出特征图的长和宽，$c_{in}$ 和 $c_{out}$ 分别表示输入和输出特征图的通道数，$h_{kernel}$ 和 $w_{kernel}$ 分别表示卷积核的长和宽，$S$ 表示步长，$P$ 表示 padding 的像素个数。</p>
+<h4 id="反卷积"><a href="#反卷积" class="headerlink" title="反卷积"></a>反卷积</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">""" 卷积层</span></span><br><span class="line"><span class="string">inputs:  (None, hin, win, cin)</span></span><br><span class="line"><span class="string">outputs: (None, hout, wout, cout)</span></span><br><span class="line"><span class="string">filter:  (hkernel, wkernel, cout, cin)</span></span><br><span class="line"><span class="string">strides: S</span></span><br><span class="line"><span class="string">padding: P</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">outputs = tf.nn.conv2d_transpose(inputs, filter, strides, padding, ...)</span><br></pre></td></tr></table></figure>
+<p>对于上述代码中的反卷积，参数量为 $h_{kernel}<em>w_{kernel}</em>c_{in}<em>c_{out}$ ；输入和输出的特征图大小分别为 $N</em>h_{in}<em>w_{in}</em>c_{in}$ 和 $N<em>h_{out}</em>w_{out}<em>c_{out}$ ，且满足关系 $h_{out}=(h_{in}-1)</em>S+h_{kernel}-2P$ 和 $w_{out}=(w_{in}-1)*S+w_{kernel}-2P$ 。</p>
+<p>其中，$h_{in}$ 、$h_{out}$ 、$w_{in}$ 、$w_{out}$ 分别表示输入和输出特征图的长和宽，$c_{in}$ 和 $c_{out}$ 分别表示输入和输出特征图的通道数，$h_{kernel}$ 和 $w_{kernel}$ 分别表示卷积核的长和宽，$S$ 表示步长，$P$ 表示 padding 的像素个数。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># using TensorFlow 1.x</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment">### Define the graph first ###</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get parameter memory</span></span><br><span class="line">variables = tf.trainable_variables()</span><br><span class="line">total_parameters = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> variable <span class="keyword">in</span> variables:</span><br><span class="line">    shape = variable.get_shape()    </span><br><span class="line">    variable_parameters = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> dim <span class="keyword">in</span> shape:</span><br><span class="line">        variable_parameters *= dim.value</span><br><span class="line">    total_parameters += variable_parameters</span><br><span class="line">print(total_parameters)</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-FLOPs"><a href="#2-FLOPs" class="headerlink" title="2. FLOPs"></a>2. FLOPs</h2><p>FLOPs（Floating Point Operations）表示浮点运算数，用于衡量模型的复杂度。</p>
+<h3 id="计算方法-1"><a href="#计算方法-1" class="headerlink" title="计算方法"></a>计算方法</h3><h4 id="全连接-1"><a href="#全连接-1" class="headerlink" title="全连接"></a>全连接</h4><p><code>乘法</code>：$N<em>c_{in}</em>c_{out}$</p>
+<p><code>加法</code>：$N<em>(2c_{in}-1)</em>c_{out}$</p>
+<h4 id="卷积-1"><a href="#卷积-1" class="headerlink" title="卷积"></a>卷积</h4><p><code>乘法</code>：$N<em>h_{kernel}</em>w_{kernel}<em>h_{out}</em>w_{out}<em>c_{in}</em>c_{out}$</p>
+<p><code>加法</code>：$N<em>h_{kernel}<em>w_{kernel}</em>h_{out}*w_{out}</em>(c_{in}-1)*c_{out}$</p>
+<h3 id="代码实现-1"><a href="#代码实现-1" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># using TensorFlow 1.x</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment">### Define the graph first ###</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get flops</span></span><br><span class="line">run_meta = tf.RunMetadata()    </span><br><span class="line">opts = tf.profiler.ProfileOptionBuilder.float_operation() </span><br><span class="line">flops = tf.profiler.profile(graph=tf.get_default_graph(),</span><br><span class="line">    run_meta=run_meta, cmd=<span class="string">'op'</span>, options=opts)     </span><br><span class="line">print(flops.total_float_ops)</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+              <a href="/tags/%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87/" rel="tag"># 评价指标</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/03/14/hexo-blog/" rel="next" title="Github Page + Hexo 个人主页搭建">
+                  <i class="fa fa-chevron-left"></i> Github Page + Hexo 个人主页搭建
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Parameter-Memory-amp-Feature-Memory"><span class="nav-text">1. Parameter Memory &amp; Feature Memory</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#计算方法"><span class="nav-text">计算方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#全连接"><span class="nav-text">全连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#卷积"><span class="nav-text">卷积</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反卷积"><span class="nav-text">反卷积</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-FLOPs"><span class="nav-text">2. FLOPs</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#计算方法-1"><span class="nav-text">计算方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#全连接-1"><span class="nav-text">全连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#卷积-1"><span class="nav-text">卷积</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现-1"><span class="nav-text">代码实现</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="fiy2W"
+    src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">fiy2W</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/fiy2W" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;fiy2W" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fiy2W</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">3k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+<script src="/js/utils.js?v=7.4.2"></script>
+<script src="/js/schemes/pisces.js?v=7.4.2"></script>
+<script src="/js/next-boot.js?v=7.4.2"></script>
+
+
+
+  
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.2"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
