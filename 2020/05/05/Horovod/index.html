@@ -50,18 +50,20 @@
   };
 </script>
 
-  <meta name="description" content="论文：Focal Loss for Dense Object Detection (ICCV 2017)1. 背景对于二分类问题，正负样本不平衡会影响模型对样本量少的类别的判断。另外，大量 easy samples（容易学的样本）引导了梯度下降的方向，而 hard samples（难学的样本）数量很少，其作用容易被 easy samples 削弱，从而降低模型对 hard samples 的判别能">
-<meta name="keywords" content="TensorFlow,论文阅读,损失函数">
+  <meta name="description" content="Horovod 是针对 TensorFlow、Keras、PyTorch 和 Apache MXNet 的分布式深度学习训练框架。Horovod 的目标是使分布式深度学习更加快速且易于使用。Horovod 对于 Inception V3 和 ResNet-101 均达到 90％的缩放效率，对于 VGG-16 达到 68％的缩放效率。">
+<meta name="keywords" content="TensorFlow,Horovod,PyTorch">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Focal Loss">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;04&#x2F;02&#x2F;FocalLoss&#x2F;index.html">
+<meta property="og:title" content="Horovod 的安装和使用">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;05&#x2F;Horovod&#x2F;index.html">
 <meta property="og:site_name" content="fiy2W&#39;s Blog">
-<meta property="og:description" content="论文：Focal Loss for Dense Object Detection (ICCV 2017)1. 背景对于二分类问题，正负样本不平衡会影响模型对样本量少的类别的判断。另外，大量 easy samples（容易学的样本）引导了梯度下降的方向，而 hard samples（难学的样本）数量很少，其作用容易被 easy samples 削弱，从而降低模型对 hard samples 的判别能">
+<meta property="og:description" content="Horovod 是针对 TensorFlow、Keras、PyTorch 和 Apache MXNet 的分布式深度学习训练框架。Horovod 的目标是使分布式深度学习更加快速且易于使用。Horovod 对于 Inception V3 和 ResNet-101 均达到 90％的缩放效率，对于 VGG-16 达到 68％的缩放效率。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-02T05:35:38.172Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;202005&#x2F;Horovod&#x2F;fig1.png">
+<meta property="og:updated_time" content="2020-05-05T15:09:39.498Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;202005&#x2F;Horovod&#x2F;fig1.png">
 
-<link rel="canonical" href="http://yoursite.com/2020/04/02/FocalLoss/">
+<link rel="canonical" href="http://yoursite.com/2020/05/05/Horovod/">
 
 
 <script id="page-configurations">
@@ -75,7 +77,7 @@
   };
 </script>
 
-  <title>Focal Loss | fiy2W's Blog</title>
+  <title>Horovod 的安装和使用 | fiy2W's Blog</title>
   
 
 
@@ -211,7 +213,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/02/FocalLoss/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/05/Horovod/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -224,7 +226,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Focal Loss
+          Horovod 的安装和使用
         </h1>
 
         <div class="post-meta">
@@ -235,7 +237,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-04-02 12:22:54 / 修改时间：13:35:38" itemprop="dateCreated datePublished" datetime="2020-04-02T12:22:54+08:00">2020-04-02</time>
+              <time title="创建时间：2020-05-05 22:36:54 / 修改时间：23:09:39" itemprop="dateCreated datePublished" datetime="2020-05-05T22:36:54+08:00">2020-05-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,8 +245,8 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
                   </a>
                 </span>
             </span>
@@ -255,14 +257,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.3k</span>
+              <span>1.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -274,24 +276,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>论文：<a href="https://arxiv.org/abs/1708.02002" target="_blank" rel="noopener">Focal Loss for Dense Object Detection</a> (ICCV 2017)</p><h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>对于二分类问题，正负样本不平衡会影响模型对样本量少的类别的判断。另外，大量 easy samples（容易学的样本）引导了梯度下降的方向，而 hard samples（难学的样本）数量很少，其作用容易被 easy samples 削弱，从而降低模型对 hard samples 的判别能力。<code>Focal Loss</code> 的提出则解决了这些问题。</p><a id="more"></a>
+        <p>Horovod 是针对 TensorFlow、Keras、PyTorch 和 Apache MXNet 的分布式深度学习训练框架。Horovod 的目标是使分布式深度学习更加快速且易于使用。</p><p><img src="/images/202005/Horovod/fig1.png" width="1024"></p><p>Horovod 对于 Inception V3 和 ResNet-101 均达到 90％的缩放效率，对于 VGG-16 达到 68％的缩放效率。</p><a id="more"></a>
 
-<h2 id="2-Focal-Loss"><a href="#2-Focal-Loss" class="headerlink" title="2. Focal Loss"></a>2. Focal Loss</h2><p>对于二分类问题，标准的交叉熵（Cross Entropy，CE）损失为：</p>
-<script type="math/tex; mode=display">CE(p,y)=
-\begin{cases}
--\log(p) & y=1 \\
--\log(1-p) & otherwise
-\end{cases}</script><p>如果上式中 $y\in \lbrace 0,1 \rbrace$ 表示了 Ground Truth（真实的类别），而 $p\in [0,1]$ 是模型对 $y=1$ 的类别估计的概率。定义 $p_t$：</p>
-<script type="math/tex; mode=display">p_t=
-\begin{cases}
-p & y=1 \\
-1-p & otherwise
-\end{cases}</script><p>CE 损失可重写为 $CE(p,y)=CE(p_t)=-\log(p_t)$</p>
-<h3 id="Balanced-Cross-Entropy"><a href="#Balanced-Cross-Entropy" class="headerlink" title="Balanced Cross Entropy"></a>Balanced Cross Entropy</h3><p>解决类别不平衡的常见方法是为类别 $y=1$ 引入加权因子 $\alpha\in [0,1]$，为类别 $y=0$ 引入加权因子 $1-\alpha$。实际上，可以通过逆类频率或者作为超参数通过交叉验证来设置 $\alpha$。为了符号上的方便，将 $\alpha_t$ 的定义类似于 $p_t$ 的定义。$\alpha$ 平衡 CE 损失可写为：</p>
-<script type="math/tex; mode=display">CE(p_t)=-\alpha_t\log(p_t)</script><h3 id="Focal-Loss-Deﬁnition"><a href="#Focal-Loss-Deﬁnition" class="headerlink" title="Focal Loss Deﬁnition"></a>Focal Loss Deﬁnition</h3><p>虽然 $\alpha$ 平衡了正负样本的重要性，但它在简单和困难的样本之间并没有区别。因此，建议在交叉熵损失上添加一个调制因子 $(1-p_t)^\gamma$，其中可调聚焦参数 $\gamma\geq 0$。Focal Loss定义为：</p>
-<script type="math/tex; mode=display">FL(p_t)=-(1-p_t)^\gamma\log(p_t)</script><p>实验中测试了 $\gamma\in [0,5]$ 的情况，且当 $\gamma=2$ 时效果最好，当 $\gamma=0$ 时 Focal Loss 退化为普通的 CE 损失。</p>
-<p>在实际使用中，可以使用基于 $\alpha$ 平衡的 Focal Loss：</p>
-<script type="math/tex; mode=display">FL(p_t)=-\alpha_t(1-p_t)^\gamma\log(p_t)</script><h2 id="3-代码实现"><a href="#3-代码实现" class="headerlink" title="3. 代码实现"></a>3. 代码实现</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">focal_loss</span><span class="params">(pred, y, alpha=<span class="number">0.5</span>, gamma=<span class="number">2</span>)</span>:</span></span><br><span class="line">    a = tf.ones_like(pred, dtype=pred.dtype) * alpha</span><br><span class="line">    pt = tf.where(y&gt;<span class="number">0</span>, pred, <span class="number">1.</span>-pred)</span><br><span class="line">    at = tf.where(y&gt;<span class="number">0</span>, a, <span class="number">1.</span>-a)</span><br><span class="line">    per_entry_cross_ent = - at * ((<span class="number">1.</span>-pt) ** gamma) * tf.log(tf.clip_by_value(pt, <span class="number">1e-8</span>, <span class="number">1.0</span>))</span><br><span class="line">    <span class="keyword">return</span> tf.reduce_sum(per_entry_cross_ent)</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-Install"><a href="#1-Install" class="headerlink" title="1. Install"></a>1. Install</h2><ul>
+<li><p>Install <a href="https://www.open-mpi.org/" target="_blank" rel="noopener">Open MPI</a> or another MPI implementation. Learn how to install Open MPI <a href="https://www.open-mpi.org/faq/?category=building#easy-build" target="_blank" rel="noopener">on this page</a>.</p>
+<p><strong>Note:</strong> Open MPI 3.1.3 has an issue that may cause hangs. The recommended fix is to downgrade to Open MPI 3.1.2 or upgrade to Open MPI 4.0.0.</p>
+</li>
+<li><p>Install the <a href="https://github.com/horovod/horovod" target="_blank" rel="noopener">Horovod</a> pip package.</p>
+<p>  To run on CPUs</p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install horovod</span><br></pre></td></tr></table></figure>
+<p>  To run on GPUs with NCCL:</p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install horovod</span><br></pre></td></tr></table></figure>
+<p>  For more details on installing Horovod with GPU support, read <a href="https://github.com/horovod/horovod/blob/master/docs/gpus.rst" target="_blank" rel="noopener">Horovod on GPU</a>.</p>
+</li>
+</ul>
+<h2 id="2-Usage"><a href="#2-Usage" class="headerlink" title="2. Usage"></a>2. Usage</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> horovod.tensorflow <span class="keyword">as</span> hvd</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize Horovod</span></span><br><span class="line">hvd.init()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Pin GPU to be used to process local rank (one GPU per process)</span></span><br><span class="line">config = tf.ConfigProto()</span><br><span class="line">config.gpu_options.visible_device_list = str(hvd.local_rank())</span><br><span class="line"></span><br><span class="line"><span class="comment"># Build model...</span></span><br><span class="line">loss = ...</span><br><span class="line">opt = tf.train.AdagradOptimizer(<span class="number">0.01</span> * hvd.size())</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add Horovod Distributed Optimizer</span></span><br><span class="line">opt = hvd.DistributedOptimizer(opt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Add hook to broadcast variables from rank 0 to all other processes during</span></span><br><span class="line"><span class="comment"># initialization.</span></span><br><span class="line">hooks = [hvd.BroadcastGlobalVariablesHook(<span class="number">0</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Make training operation</span></span><br><span class="line">train_op = opt.minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Save checkpoints only on worker 0 to prevent other workers from corrupting them.</span></span><br><span class="line">checkpoint_dir = <span class="string">'/tmp/train_logs'</span> <span class="keyword">if</span> hvd.rank() == <span class="number">0</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The MonitoredTrainingSession takes care of session initialization,</span></span><br><span class="line"><span class="comment"># restoring from a checkpoint, saving to a checkpoint, and closing when done</span></span><br><span class="line"><span class="comment"># or an error occurs.</span></span><br><span class="line"><span class="keyword">with</span> tf.train.MonitoredTrainingSession(checkpoint_dir=checkpoint_dir, config=config, hooks=hooks) <span class="keyword">as</span> mon_sess:</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> mon_sess.should_stop():</span><br><span class="line">        <span class="comment"># Perform synchronous training.</span></span><br><span class="line">        mon_sess.run(train_op)</span><br></pre></td></tr></table></figure>
+<h2 id="3-Running-Horovod"><a href="#3-Running-Horovod" class="headerlink" title="3. Running Horovod"></a>3. Running Horovod</h2><p>To run on a machine with 4 GPUs:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">horovodrun -np 4 -H localhost:4 python train.py</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -301,25 +303,22 @@ p & y=1 \\
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
-              <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag"># 论文阅读</a>
-              <a href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/" rel="tag"># 损失函数</a>
+              <a href="/tags/Horovod/" rel="tag"># Horovod</a>
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
-                <a href="/2020/03/31/CoordConv/" rel="next" title="CoordConv">
-                  <i class="fa fa-chevron-left"></i> CoordConv
+                <a href="/2020/04/02/SOLO/" rel="next" title="SOLO">
+                  <i class="fa fa-chevron-left"></i> SOLO
                 </a>
             </div>
 
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-                <a href="/2020/04/02/SOLO/" rel="prev" title="SOLO">
-                  SOLO <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
       </footer>
@@ -358,7 +357,7 @@ p & y=1 \\
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-背景"><span class="nav-text">1. 背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Focal-Loss"><span class="nav-text">2. Focal Loss</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Balanced-Cross-Entropy"><span class="nav-text">Balanced Cross Entropy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Focal-Loss-Deﬁnition"><span class="nav-text">Focal Loss Deﬁnition</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-代码实现"><span class="nav-text">3. 代码实现</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Install"><span class="nav-text">1. Install</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Usage"><span class="nav-text">2. Usage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Running-Horovod"><span class="nav-text">3. Running Horovod</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -472,7 +471,7 @@ p & y=1 \\
 
 
 
-  <script src="/js/local-search.js?v=7.4.2"></script>
+  <script src="/js/local-search.js?v=7.4.2"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 
@@ -489,54 +488,6 @@ p & y=1 \\
   
 
   
-      
-<script type="text/x-mathjax-config">
-
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
-
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
-
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-    
 
   
 
